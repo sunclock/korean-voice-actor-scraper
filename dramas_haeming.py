@@ -39,7 +39,8 @@ def get_drama_list(html):
             '\t', '').replace('\r', '').strip()
         author = content[1].string.replace('\n', '').replace(
             '\t', '').replace('\r', '').strip()
-        voice_actor = content[2].string.strip().split(',')
+        voice_actor = content[2].string.strip().replace(
+            '\n', '').replace('\t', '').replace('\r', '').split(',')
         print(title)
         print(author)
         print(voice_actor)
