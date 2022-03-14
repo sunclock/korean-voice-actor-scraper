@@ -16,6 +16,8 @@ urls = {
     "serial": "https://audiocomics.kr/audiodrama/serial?cycle=ALL"
 }
 
+count = 0
+
 
 def get_html(url):
     html = urlopen(url)
@@ -31,7 +33,6 @@ def get_drama_list(html):
     for drama in html:
         title = drama.find('h3', 'subjet').find('a').string.strip().replace(
             '\n', '').replace('\t', '').replace('\r', '')
-        print('title', title)
         url = drama.find('h3', 'subjet').find('a').get('href').strip().replace(
             '\n', '').replace('\t', '').replace('\r', '')
         r18 = drama.find('span', 'adult')
@@ -67,18 +68,18 @@ def get_drama_list(html):
     return dramas
 
 
-# complete_html = get_html(urls['complete'])
+complete_html = get_html(urls['complete'])
 complete_2_html = get_html(urls['complete_2'])
 complete_3_html = get_html(urls['complete_3'])
 complete_4_html = get_html(urls['complete_4'])
 complete_5_html = get_html(urls['complete_5'])
-# serial_html = get_html(urls['serial'])
-# complete_dramas = get_drama_list(str(complete_html))
+serial_html = get_html(urls['serial'])
+complete_dramas = get_drama_list(str(complete_html))
 complete_2_dramas = get_drama_list(str(complete_2_html))
 complete_3_dramas = get_drama_list(str(complete_3_html))
 complete_4_dramas = get_drama_list(str(complete_4_html))
 complete_5_dramas = get_drama_list(str(complete_5_html))
-# serial_dramas = get_drama_list(str(serial_html))
+serial_dramas = get_drama_list(str(serial_html))
 
 
 cred = credentials.Certificate("./serviceAccountKey.json")
@@ -89,14 +90,17 @@ db = firestore.client()
 
 def store_dramas(dramas):
     for drama in dramas:
-        print(drama)
+        global count
+        count += 1
         drama_ref = db.collection(u'dramas').document(u'%s' % drama['title'])
         drama_ref.set(drama)
 
 
-# store_dramas(complete_dramas)
+print('오디오코믹스 드라마 저장 시작')
+store_dramas(complete_dramas)
 store_dramas(complete_2_dramas)
 store_dramas(complete_3_dramas)
 store_dramas(complete_4_dramas)
 store_dramas(complete_5_dramas)
-# store_dramas(serial_dramas)
+store_dramas(serial_dramas)
+print('총 %d 건의 오디오코믹스 드라마 저장 완료' % count)

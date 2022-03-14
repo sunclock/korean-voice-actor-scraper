@@ -13,6 +13,8 @@ urls = {
     "romance": "https://hae-ming.com/sub/romance",
 }
 
+count = 0
+
 
 def get_html(url):
     html = urlopen(url)
@@ -26,7 +28,6 @@ def get_drama_list(html):
     html = bsObject.find_all('div', 'audiobook')
     dramas = []
     for drama in html:
-        print(drama)
         imgSrc = drama.find(
             'div', 'audiobook-img-wrapper').find('button').find('img').get('src')
         if (imgSrc == "/static/images/no_adult.jpeg"):
@@ -41,9 +42,6 @@ def get_drama_list(html):
             '\t', '').replace('\r', '').strip()
         voice_actor = content[2].string.strip().replace(
             '\n', '').replace('\t', '').replace('\r', '').split(',')
-        print(title)
-        print(author)
-        print(voice_actor)
         dramas.append({
             'title': title,
             'url': '',
@@ -73,11 +71,14 @@ db = firestore.client()
 
 def store_dramas(dramas):
     for drama in dramas:
-        print(drama)
+        global count
+        count += 1
         drama_ref = db.collection(u'dramas').document(u'%s' % drama['title'])
         drama_ref.set(drama)
 
 
+print('해밍 드라마 저장 시작')
 store_dramas(bl_dramas)
 store_dramas(drama_dramas)
 store_dramas(romance_dramas)
+print('총 %d 건의 해밍 드라마 저장 완료' % count)

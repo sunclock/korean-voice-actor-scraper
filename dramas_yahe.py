@@ -7,6 +7,8 @@ from firebase_admin import firestore
 
 domain = "http://www.yahe-shop.com/"
 
+count = 0
+
 
 def get_drama_list(url):
     html = urlopen(url)
@@ -18,7 +20,6 @@ def get_drama_list(url):
         production = '밤바다 야해'
         title = drama.text.lstrip('(예약판)').lstrip('(일반판)').split('( 리뷰 ')[0].replace('\n', '').replace(
             '\t', '').replace('\r', '').strip()
-        print('title', title)
         author = ''
         voice_actor = []
         dramas.append({
@@ -45,9 +46,12 @@ db = firestore.client()
 
 def store_dramas(dramas):
     for drama in dramas:
-        print(drama)
+        global count
+        count += 1
         drama_ref = db.collection(u'dramas').document(u'%s' % drama['title'])
         drama_ref.set(drama)
 
 
+print('밤바다 야해 드라마 저장 시작')
 store_dramas(dramas)
+print('총 %d 건의 밤바다 야해 드라마 저장 시작' % count)

@@ -114,6 +114,8 @@ urls = {
     "female_3": "https://ko.wikipedia.org/w/index.php?title=%EB%B6%84%EB%A5%98:%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD%EC%9D%98_%EC%97%AC%EC%9E%90_%EC%84%B1%EC%9A%B0&pagefrom=%EC%A0%84%ED%95%B4%EB%A6%AC#mw-pages",
 }
 
+count = 0
+
 
 def get_html(url):
     html = urlopen(url)
@@ -151,20 +153,25 @@ db = firestore.client()
 
 def store_actors(actors, sex):
     for actor in actors:
+        global count
+        count += 1
         actor_ref = db.collection(u'actors').document(u'%s' % actor.string)
         actor_ref.set({
-            u'name': actor.string,
+            u'name': actor.string.strip().replace(
+                '\n', '').replace('\t', '').replace('\r', '').split(' ')[0],
             u'url': domain + actor['href'],
             u'sex': sex,
-            u'filmography': [{}],
+            u'filmography': [],
             u'created_at': datetime.now(),
             u'modified_at': datetime.now(),
         })
 
 
+print('성우 저장 시작')
 store_actors(male_actors, '남성')
 store_actors(male_actors_2, '남성')
 store_actors(male_actors_3, '남성')
 store_actors(female_actors, '여성')
 store_actors(female_actors_2, '여성')
 store_actors(female_actors_3, '여성')
+print('총 %d 건의 성우 저장 완료' % count)
